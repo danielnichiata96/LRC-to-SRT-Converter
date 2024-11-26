@@ -1,7 +1,6 @@
 from flask import Flask, request, send_file, render_template_string
 import os
 import re
-import unicodedata
 
 app = Flask(__name__)
 
@@ -37,6 +36,7 @@ def censor_text(text):
         'shits': 's****',
         'shitty': 's****',
         'shittin': 's******',
+        'suckin': 's*****',
         'tit': 't**',
         'tits': 't***',
         'nigga': 'n****',
@@ -66,15 +66,22 @@ def censor_text(text):
         'verga': 'v****',
         'bloodclaat': 'b*********',
         'rassclaat': 'r********',
+
     }
     for word, censored_word in curse_words.items():
         text = re.sub(rf'\b{word}\b', censored_word, text, flags=re.IGNORECASE)
     return text
 
-def normalize_text(text):
-    # Normalize text to remove diacritics and unsupported characters
-    normalized = unicodedata.normalize('NFD', text)
-    return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+def selective_normalize(text):
+    # Replace only specific characters
+    replacements = {
+        'ṣ': 's',
+        'ẹ': 'e',
+        'ạ': 'a'
+    }
+    for char, replacement in replacements.items():
+        text = text.replace(char, replacement)
+    return text
 
 def lrc_to_srt(lrc_content):
     subs = []
@@ -84,11 +91,11 @@ def lrc_to_srt(lrc_content):
     for idx, match in enumerate(matches):
         timestamp, text = match
         
-        # Process text to replace notes, censor, and normalize
+        # Process text to replace notes, censor, and selectively normalize
         if not text.strip():
             text = '♫'
         else:
-            text = normalize_text(censor_text(replace_notes(text)))
+            text = selective_normalize(censor_text(replace_notes(text)))
         
         # Start and end times based on exact LRC timestamps
         start_time = timestamp
