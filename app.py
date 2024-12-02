@@ -30,6 +30,8 @@ def censor_text(text):
         'fucker': 'f*****',
         'fuckin': 'f*****',
         'fucked': 'f*****',
+        'nut': 'n**',
+        'nuts': 'n***',
         'motherfuckin': 'motherf*****',
         'motherfucking': 'motherf******',
         'motherfuckers': 'motherf******',
